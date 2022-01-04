@@ -46,7 +46,7 @@ function checkFileType( file, cb ){
 }
 router.get('/',(req,res)=>{
     res.json({
-        status: 'Welcome to classroom api',
+        status: 'Welcome to security rest api',
     })
 })
 
