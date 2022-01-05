@@ -29,7 +29,7 @@ const profileImgUpload = multer({
     fileFilter: function (req, file, cb) {
         checkFileType(file, cb);
     }
-}).single('img')
+}).single('imageFile')
 // Function to check file type 
 function checkFileType(file, cb) {
     // Allowed ext
