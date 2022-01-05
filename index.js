@@ -10,6 +10,7 @@ const io = require('socket.io')(http, {
     methods: '*'
   }
 })
+
 require('./src/db/mongoose')
 const userRouter = require('./src/routes/user')
 const teacherRouter = require('./src/routes/teacher')
@@ -20,6 +21,12 @@ app.use(cors())
 app.use(userRouter)
 app.use(teacherRouter)
 app.use(arduinoRouter)
+
+
+
+
+
+
 
 
 app.listen(port, () => {

@@ -48,6 +48,8 @@ function checkFileType(file, cb) {
 router.post('/arduino/upload-image', async (req, res) => {
     try {
         console.log("A request is made to arduino upload route.")
+        console.log(req)
+        console.log(req.body)
         profileImgUpload(req, res, (error) => {
             if (error) {
                 return res.json({
