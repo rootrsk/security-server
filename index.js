@@ -1,4 +1,4 @@
-
+const formidable = require('express-formidable');
 const express = require('express')
 const http = require('http')
 const app = express()
@@ -32,7 +32,7 @@ app.use(cors())
 
 app.use(userRouter)
 
-// app.use(formidable());
+app.use(formidable());
 app.use(arduinoRouter)
 
 server.listen(port, () => {
