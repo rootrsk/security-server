@@ -7,6 +7,7 @@ const path = require('path');
 const url = require('url')
 // S3 object 
 const formidable = require('express-formidable');
+const app = express()
 const s3 = new aws.S3({
     accessKeyId: 'AKIA3OYGIS7MBPLU7EO2',
     secretAccessKey: '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',
@@ -14,7 +15,8 @@ const s3 = new aws.S3({
 })
 
 
-router.post('/arduino/upload-image',formidable, async(req, res) => {
+router.post('/arduino/upload-image', async(req, res) => {
+    app.use(formidable())
     try {
         console.log("A request is made to arduino upload route.")
         console.log(req.io)
