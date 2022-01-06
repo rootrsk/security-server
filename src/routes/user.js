@@ -1,7 +1,7 @@
 const express = require ('express')
-const Room = require('../db/Models/class')
 const router = express.Router()
 const User = require('./../db/Models/user')
+const Image = require('./../db/Models/image')
 const userAuth = require('./../middlewares/userAuth')
 
 
@@ -44,12 +44,27 @@ function checkFileType( file, cb ){
         cb( 'Error: Images Only!' );
     }
 }
+
 router.get('/',(req,res)=>{
     res.json({
         status: 'Welcome to security rest api',
     })
 })
 
+router.get('/user/images',async(req,res)=>{
+    try {
+        const savedImages  = await Image.find({}).sort({_id:-1}).limit(50)
+        res.json({
+            status:'success',
+            savedImages
+        })
+    } catch (error) {
+        res.json({
+            status: 'failed',
+            error: error.message
+        })
+    }
+})
 //Router for new users to singup  
 router.post('/signup',async(req,res) =>{
     try {
@@ -123,33 +138,9 @@ router.get('/user/me',userAuth,async(req,res)=>{
         })
     }
 })
+
 // for user to join class
-router.post('/user/class/join',userAuth,async(req,res)=>{
-    try {
-        const class_id = req.body.class_id
-        const user = req.user
-        if(!class_id) {
-            return res.json({
-                error : 'Provide a valid class ID',
-                status : 'failed'
-            })
-        }
-        const room = await Room.findById(class_id).populate('owner')
-        const updatedUser = await User.updateOne({_id : req.user._id},
-            {$addToSet: { classes: {
-                class : room._id,
-                teacher : room.owner._id
-            } }}
-        )
-        res.json({room,user})
-    }
-    catch (error) {
-        res.json({
-            status : 'failed',
-            error : error.message
-        })
-    }
-})
+
 
 //Route for updating profile details
 router.patch('/user/profile',userAuth,async(req,res) => {
@@ -219,115 +210,8 @@ router.post( '/user/profile-img',userAuth,async(req,res)=>{
             status:'failed'
         })
     }
-    
 })
 
-// Route for user to exit form a class
-router.delete('/user/class/join',userAuth,async(req,res)=>{
-    try {
-        const class_id = req.body.class_id
-        const user = req.user
-        if(!class_id) {
-            return res.json({
-                error : 'Provide a valid class ID',
-                status : 'failed'
-            })
-        }
-        const room = await Room.findById(class_id).populate('owner')
-        const updatedUser = await User.updateOne({_id : req.user._id},
-            {$pull: { classes: {
-                class : room._id,
-                teacher : room.owner._id
-            } }}
-        )
-        res.json({room,user})
-    }
-    catch (error) {
-        res.json({
-            status : 'failed',
-            error : error.message
-        })
-    }
-})
 
-router.get('/student/class',async(req,res) => {
-    try {
-        if(!req.query.id){
-            
-            return res.json({
-                status:'Failed',
-                error:'Class ID is required'
-            })
-        }
-        const room = await Room.findById(req.query.id).populate('owner')
-        const users = await User.find({'classes.class':room._id}).select('username fullname')
-
-        if(!room){
-            return res.json({
-                status:'failed',
-                error:'This class does not exist'
-            })
-        }
-        return res.json({
-            status:'success',
-            room,
-            users
-        })
-    }   catch (error) {
-            return res.json({
-                status:'failed',
-                error:error.message
-            })
-    }
-})
-
-// Router for getting all classes in which user has joined
-router.get('/user/classes',userAuth,async(req,res)=>{
-    try{
-        const user = await User.findById(req.user._id).populate('classes.class classes.teacher')
-        res.json({
-            user
-        })
-    }
-    catch(e){
-            res.json({
-            status : 'failed',
-            error : error.message
-        })
-    }
-})
-// Route for geting single class details by providing id
-router.get('/user/class',async(req,res) => {
-    try {
-        if(!req.query.id){
-            
-            return res.json({
-                status:'Failed',
-                error:'Class ID is required'
-            })
-        }
-        const room = await Room.findById(req.query.id).populate('owner')
-        const users = await User.find({'classes.class':room._id}).select('username fullname')
-        const teacher = room.owner
-
-        if(!room){
-            return res.json({
-                status:'failed',
-                error:'This class does not exist'
-            })
-        }
-        return res.json({
-            status:'success',
-            room,
-            users,
-            teacher
-        })
-    }   catch (error) {
-            return res.json({
-                status:'failed',
-                error:error.message
-            })
-    }
-})
 
 module.exports = router

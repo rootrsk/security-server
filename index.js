@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const http = require('http').createServer(app)
 const cors = require('cors')
+const formidable = require('express-formidable');
 // const cors = require('./src/utils/cors')
 const port = process.env.PORT || 3001
 const io = require('socket.io')(http, {
@@ -13,13 +14,12 @@ const io = require('socket.io')(http, {
 
 require('./src/db/mongoose')
 const userRouter = require('./src/routes/user')
-const teacherRouter = require('./src/routes/teacher')
 const arduinoRouter = require('./src/routes/arduino')
 app.use(cors())
 app.use(express.json())
 app.use(cors())
+app.use(formidable());
 app.use(userRouter)
-app.use(teacherRouter)
 app.use(arduinoRouter)
 
 
