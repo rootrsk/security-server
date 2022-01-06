@@ -15,8 +15,8 @@ const s3 = new aws.S3({
 })
 
 
-router.post('/arduino/upload-image', async(req, res) => {
-    app.use(formidable())
+router.post('/arduino/upload-image', formidable, async (req, res) => {
+    // app.use(formidable())
     try {
         console.log("A request is made to arduino upload route.")
         console.log(req.io)
