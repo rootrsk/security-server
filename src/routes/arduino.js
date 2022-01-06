@@ -37,7 +37,7 @@ router.post('/arduino/upload-image', async(req, res) => {
                     const image = new Image({
                         uri:data.Location,
                         key:data.key,
-                        captured_at: Date().now()
+                        captured_at: new Date()
                     })
                     image.save()
                     console.log("Saved to database successfully")
