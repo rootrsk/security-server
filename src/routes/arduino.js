@@ -6,6 +6,7 @@ const multer = require('multer');
 const path = require('path');
 const url = require('url')
 // S3 object 
+const formidable = require('express-formidable');
 const s3 = new aws.S3({
     accessKeyId: 'AKIA3OYGIS7MBPLU7EO2',
     secretAccessKey: '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',
@@ -13,9 +14,10 @@ const s3 = new aws.S3({
 })
 
 
-router.post('/arduino/upload-image', async(req, res) => {
+router.post('/arduino/upload-image',formidable, async(req, res) => {
     try {
         console.log("A request is made to arduino upload route.")
+        console.log(req.io)
         const fileName = path.basename(req.fields.imageName, path.extname(req.fields.imageName)) + '_' + Date.now() + path.extname(req.fields.imageName)
         console.log(fileName)
         bufferImage = Buffer.from(req.fields.image.replace(/^data:image\/\w+;base64,/, ""), 'base64')
@@ -28,7 +30,7 @@ router.post('/arduino/upload-image', async(req, res) => {
             ContentType: 'image/jpeg'
         }
 
-        s3.upload(uploadParams, function (err, data) {
+        s3.upload(uploadParams,async function (err, data) {
             if (err) {
                 console.log("Error", err);
             }
@@ -39,7 +41,8 @@ router.post('/arduino/upload-image', async(req, res) => {
                         key:data.key,
                         captured_at: new Date()
                     })
-                    image.save()
+                    await image.save()
+                    req.io.sockets.emit("new-image-uploaded", image);
                     console.log("Saved to database successfully")
                 } catch (error) {
                     console.log(error)

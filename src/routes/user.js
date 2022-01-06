@@ -53,7 +53,15 @@ router.get('/',(req,res)=>{
 
 router.get('/user/images',async(req,res)=>{
     try {
-        const savedImages  = await Image.find({}).sort({_id:-1}).limit(50)
+        let savedImages = []
+        console.log(req.query)
+        
+        if(req.query.skip){
+            savedImages= await Image.find({}).sort({_id:-1}).skip(parseInt(req.query.skip)).limit(50)
+        }else{
+            savedImages= await Image.find({}).sort({_id:-1}).limit(50)
+        }
+        
         res.json({
             status:'success',
             savedImages
@@ -62,6 +70,43 @@ router.get('/user/images',async(req,res)=>{
         res.json({
             status: 'failed',
             error: error.message
+        })
+    }
+})
+router.delete('/user/image', async (req, res) => {
+    try {
+        console.log('Delte REquiest')
+        if(!req.body._id){
+            return res.json({
+                error:`Something Wrong With This Image.`
+            })
+        }
+        const image = await Image.findById(req.body._id)
+        if(!image){
+            return res.json({
+                status:'failed',
+                error:`This Image Doensn't Exist.`
+            })
+        }
+
+        if(image.key || image.uri){
+
+            s3.deleteObject({ Bucket: 'rootrskbucket1', Key: image.key?image.key:image.uri }, async(err, data) => {
+                console.error(err);
+                console.log(data);
+                await Image.findByIdAndDelete(image._id)
+            });
+
+        }
+        res.json({
+            message: 'Image Delation Successful.',
+            status: 'success'
+        })
+            
+    } catch (error) {
+        res.json({
+            message: 'Image Delation Successful.',
+            status: 'success'
         })
     }
 })
@@ -82,20 +127,20 @@ router.post('/signup',async(req,res) =>{
 })
 // for loggin user
 router.post('/login',async(req,res) =>{
+    console.log('login requiret is made')
     try {
         console.log(req.body)
         if (!req.body.id || !req.body.password){
             return res.json({
                 status : 'failed',
-                error : 'User email / username & password is required',
+                error : 'Email or Username and  Password is Required',
             })
         }
         const {user,error} = await User.findByCredentials({
             id : req.body.id,
             password : req.body.password,
         })
-        if(error)
-        {
+        if(error){
             return res.json({
                 error : error,
                 status : 'failed',
