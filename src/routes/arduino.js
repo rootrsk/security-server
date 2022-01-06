@@ -19,7 +19,7 @@ router.post('/arduino/upload-image', async (req, res) => {
     // app.use(formidable())
     try {
         console.log("A request is made to arduino upload route.")
-        console.log(req.io)
+        // console.log(req.io)
         const fileName = path.basename(req.fields.imageName, path.extname(req.fields.imageName)) + '_' + Date.now() + path.extname(req.fields.imageName)
         console.log(fileName)
         bufferImage = Buffer.from(req.fields.image.replace(/^data:image\/\w+;base64,/, ""), 'base64')

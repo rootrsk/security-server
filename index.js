@@ -28,7 +28,7 @@ const userRouter = require('./src/routes/user')
 const arduinoRouter = require('./src/routes/arduino')
 app.use(cors())
 app.use(express.json())
-app.use(cors())
+// app.use(cors())
 
 app.use(userRouter)
 
