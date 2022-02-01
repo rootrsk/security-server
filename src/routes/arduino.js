@@ -106,7 +106,7 @@ router.post('/arduino/upload-image', async (req, res) => {
                         await image.save()
                         req.io.sockets.emit("new-image-uploaded", image);
                         console.log("Saved to database successfully")
-                        console.log(data.Labels)
+                        console.log(labelData.Labels)
                     }
                 })
             }
