@@ -4,7 +4,9 @@ const http = require('http')
 const app = express()
 const server = http.createServer(app)
 const socket = require('socket.io')
-var cors = require('cors')
+const cors = require('cors')
+const dotnev = require('dotenv')
+dotnev.config()
 app.use(cors())
 const io = socket(server, {
   cors: {
@@ -28,8 +30,6 @@ const userRouter = require('./src/routes/user')
 const arduinoRouter = require('./src/routes/arduino')
 app.use(cors())
 app.use(express.json())
-// app.use(cors())
-
 app.use(userRouter)
 
 app.use(formidable());
