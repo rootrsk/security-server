@@ -12,6 +12,9 @@ const imageSchema = mongoose.Schema({
     captured_at : {
         type : Date,
     },
+    labels:{
+        _id: false
+    }
 })
 
 const Image = mongoose.model('Image',imageSchema)
