@@ -90,7 +90,7 @@ router.post('/arduino/upload-image', async (req, res) => {
                 var params = {
                     Image: {Bytes: base64,},
                     MaxLabels: 20,
-                    MinConfidence: 60
+                    MinConfidence: 70
                 }
                 const rekognition = new AWS.Rekognition()
                 rekognition.detectLabels(params,async function (err, labelData) {
