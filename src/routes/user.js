@@ -88,7 +88,6 @@ router.delete('/user/image', async (req, res) => {
                 error:`This Image Doensn't Exist.`
             })
         }
-
         if(image.key || image.uri){
 
             s3.deleteObject({ Bucket: 'rootrskbucket1', Key: image.key?image.key:image.uri }, async(err, data) => {
