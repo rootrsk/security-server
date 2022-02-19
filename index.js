@@ -8,7 +8,7 @@ const cors = require('cors')
 const dotnev = require('dotenv')
 dotnev.config()
 app.use(cors())
-app.use(require("morgan"));
+// app.use(require("morgan"));
 const io = socket(server, {
   cors: {
     origin: "*",
