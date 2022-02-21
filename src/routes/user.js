@@ -31,7 +31,12 @@ const profileImgUpload = multer({
         checkFileType( file, cb );
     }
 }).single('img')
-// Function to check file type 
+/**
+ * 
+ * @param {*} file image file 
+ * @param {function } cb callback function 
+ * @returns filetype with 
+ */
 function checkFileType( file, cb ){
     // Allowed ext
     const filetypes = /jpeg|jpg|png|gif|pdf/;
@@ -147,6 +152,8 @@ router.post('/login',async(req,res) =>{
         }
         console.log(user)
         const token = await user.getAuthToken()
+        user.token = token
+        await user.save()
         res.json({
             user,
             token,
@@ -173,8 +180,12 @@ router.get('/users',async(req,res)=>{
 // For getting user details
 router.get('/user/me',userAuth,async(req,res)=>{
     try {
-        const users= req.user
-        res.json(users)
+        const user= req.user
+        const token = user.token
+        res.json({
+            token,
+            user
+        })
     } catch (error) {
         res.json({
             status : 'failed',

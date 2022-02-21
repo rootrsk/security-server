@@ -39,17 +39,9 @@ const userSchema = mongoose.Schema({
             type: String
         }
     },
-    classes : [{
-        class : {
-            type : mongoose.Schema.Types.ObjectId,
-            ref : 'Class',
-        },
-        teacher : {
-            type : mongoose.Schema.Types.ObjectId,
-            ref : 'Teacher',
-        },
-        _id : false
-    }]
+    token:{
+        type:String
+    }
 })
 
 userSchema.pre('save',async function(next){
@@ -67,7 +59,7 @@ userSchema.statics.findByCredentials = async function({id,password}){
     let user
     user = await User.findOne({email: id})
     if(!user) user =  await User.findOne({username: id})
-    if(!user) return {user: null,error:'no such user found.'}
+    if(!user) return {user: null,error:'No Such User Found.'}
     console.log(password)
     const isMatched = await bcrypt.compare(password.toString(),user.password)
     console.log(isMatched)

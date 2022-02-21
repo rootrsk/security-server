@@ -32,7 +32,7 @@ io.on("connection", (socket) => {
     arduino = true
     io.to("123456789").emit("arduino-update", {status:'connected',sensors})
   }else{
-    socket.emit("arduino-update", {status:'connected',sensors})
+    socket.emit("arduino-update", {status:arduino?'connected':'disconnected',sensors})
   }
   socket.join("123456789");
 
