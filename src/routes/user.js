@@ -10,6 +10,7 @@ const multerS3 = require( 'multer-s3' );
 const multer = require('multer');
 const path = require( 'path' );
 const url = require('url')
+const sendMail = require('../middlewares/mailer')
 // S3 object 
 const s3 = new aws.S3({
     accessKeyId: 'AKIA3OYGIS7MBPLU7EO2',
@@ -217,7 +218,129 @@ router.patch('/user/profile',userAuth,async(req,res) => {
         })
     }
 })
+// 
+router.post('/user/generate-otp', async (req, res) => {
+    try {
+        if(!req.body.email){
+            return res.json({
+                status: 'failed',
+                error: 'Please Enter a Valid Email!'
+            })
+        }
+        const user = await User.findOne({email:req.body.email})
+        if (!user) {
+            return res.json({
+                status: 'failed',
+                error: 'Email is Not Registered!'
+            })
+        }
+        const otp = Math.round(Math.random() * 10000000)
+        user.otp = otp
+        await user.save()
+        await sendMail({
+            text:'Please do not share this code with anyone.',
+            to:user.email,
+            subject:'Password Reset',
+            html:`
+                <p>Please do not share this code with anyone!</p>
+                <h1>${otp}</h1>
+                <img 
+                    src='https://i.ibb.co/2Wnc5cG/Group-8.png' 
+                    alt='cloud vision logo' 
+                >
+            `
+        })
+        res.json({
+            status: 'success',
+            message:`OTP has been send to ${user.email}`
+        })
+    } catch (e) {
+        res.json({
+            status: 'failed',
+            error: e.message
+        })
+    }
+})
 
+router.post('/user/reset-password', async (req, res) => {
+    try {
+        if(!req.body.email){
+            return res.json({
+                status: 'failed',
+                error: 'Please Enter a Valid Email!'
+            })
+        }
+        if(!req.body.password){
+            return res.json({
+                status: 'failed',
+                error: 'Please Enter a Valid Password!'
+            })
+        }
+        if (!req.body.otp) {
+            return res.json({
+                status: 'failed',
+                error: 'Please Enter a Valid OTP!'
+            })
+        }
+        const user = await User.findOne({email:req.body.email})
+        if (!user) {
+            return res.json({
+                status: 'failed',
+                error: 'Email is Not Registered!'
+            })
+        }
+        if(user.otp === req.body.otp){
+            user.password = req.body.password
+            user.opt = null
+            await user.save()
+            return res.json({
+                status:'success',
+                message:'Your Password has been Changed.'
+            })
+        }
+        const otp = Math.round(Math.random() * 10000000)
+        user.otp = otp
+        await user.save()
+        await sendMail({
+            text:'Please do not share this code with anyone.',
+            to:user.email,
+            subject:'Password Reset',
+            html:`
+                <p>Please do not share this code with anyone!</p>
+                <h1>${otp}</h1>
+                <img 
+                    src='https://i.ibb.co/2Wnc5cG/Group-8.png' 
+                    alt='cloud vision logo' 
+                >
+            `
+        })
+        res.json({
+            status: 'failed',
+            error:'You Have Entered Invalid OTP',
+            message:`New OTP has been send to ${user.email}`
+        })
+    } catch (e) {
+        res.json({
+            status: 'failed',
+            error: e.message
+        })
+    }
+})
+// router.patch('/user/generate-otp', userAuth, async (req, res) => {
+//     try {
+
+//         res.json({
+//             user: req.user,
+//             token,
+//             status: 'success'
+//         })
+//     } catch (e) {
+//         res.json({
+//             status: 'failed',
+//             error: e.message
+//         })
+//     }
+// })
 router.post( '/user/profile-img',userAuth,async(req,res)=>{
     try{
         profileImgUpload( req, res, ( error ) => {
