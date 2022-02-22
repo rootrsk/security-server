@@ -294,7 +294,8 @@ router.post('/user/reset-password', async (req, res) => {
                 error: 'Email is Not Registered!'
             })
         }
-        if(user.otp === req.body.otp){
+        console.log(user.otp,req.body.otp)
+        if(parseInt(user.otp) === parseInt(req.body.otp)){
             user.password = req.body.password
             user.opt = null
             await user.save()
