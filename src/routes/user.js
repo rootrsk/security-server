@@ -385,12 +385,13 @@ router.post( '/user/profile-img',userAuth,async(req,res)=>{
                 location: imageLocation,
                 status:'success',
                 error:null,
-                user: req.user
-
+                user: req.user,
+                token:req.user.token
             });
 
         });
     }catch(e){
+        console.log(e)
         res.json({
             error:e.message,
             status:'failed'
