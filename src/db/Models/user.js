@@ -34,9 +34,11 @@ const userSchema = mongoose.Schema({
     profile:{
         avatar:{
             type: String,
+            default: 'https://i.ibb.co/2Wnc5cG/Group-8.png'
         },
         key: {
-            type: String
+            type: String,
+            defalut:Math.round(Math.random()*10000000)
         }
     },
     token:{
