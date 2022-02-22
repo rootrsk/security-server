@@ -56,7 +56,7 @@ router.get('/',(req,res)=>{
         status: 'Welcome to security rest api',
     })
 })
-
+// For getting clicked images form server
 router.get('/user/images',async(req,res)=>{
     try {
         let savedImages = []
@@ -79,6 +79,8 @@ router.get('/user/images',async(req,res)=>{
         })
     }
 })
+// for deleting images from server
+// currently not workging
 router.delete('/user/image', async (req, res) => {
     try {
         console.log('Delte REquiest')
@@ -210,10 +212,10 @@ router.patch('/user/profile',userAuth,async(req,res) => {
         req.user.email = req.body.email
         req.user.contact = req.body.contact
         await req.user.save()
-        const token = await req.user.getAuthToken()
+        // const token = await req.user.getAuthToken()
         res.json({
             user: req.user,
-            token,
+            token:user.token,
             status:'success'
         })
     }catch(e){
@@ -223,7 +225,7 @@ router.patch('/user/profile',userAuth,async(req,res) => {
         })
     }
 })
-// 
+/**For genereting Otp  */
 router.post('/user/generate-otp', async (req, res) => {
     try {
         if(!req.body.email){
@@ -266,7 +268,7 @@ router.post('/user/generate-otp', async (req, res) => {
         })
     }
 })
-
+// For changing password with otp
 router.post('/user/reset-password', async (req, res) => {
     try {
         if(!req.body.email){
@@ -297,7 +299,7 @@ router.post('/user/reset-password', async (req, res) => {
         console.log(user.otp,req.body.otp)
         if(parseInt(user.otp) === parseInt(req.body.otp)){
             user.password = req.body.password
-            user.opt = null
+            user.otp = null
             await user.save()
             return res.json({
                 status:'success',
