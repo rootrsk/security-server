@@ -215,7 +215,7 @@ router.patch('/user/profile',userAuth,async(req,res) => {
         // const token = await req.user.getAuthToken()
         res.json({
             user: req.user,
-            token:user.token,
+            token:req.user.token,
             status:'success'
         })
     }catch(e){
