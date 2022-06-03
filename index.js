@@ -65,7 +65,7 @@ io.on("connection", (socket) => {
   socket.on("FS", () => {
     io.to("123456789").emit("FS")
   })
-  socket.on("OU", () => {
+  socket.on("OU", () => {/*  */
     io.to("123456789").emit("OU")
   })
   socket.on("FU", () => {

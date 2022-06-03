@@ -39,6 +39,7 @@ const profileImgUpload = multer({
  * @returns filetype with 
  */
 function checkFileType( file, cb ){
+    console.log("checking file type")
     // Allowed ext
     const filetypes = /jpeg|jpg|png|gif|pdf/;
     // Check ext
@@ -62,8 +63,11 @@ router.get('/user/images',async(req,res)=>{
         let savedImages = []
         console.log(req.query)
         
-        if(req.query.skip){
-            savedImages= await Image.find({}).sort({_id:-1}).skip(parseInt(req.query.skip)).limit(50)
+        if(req.query.page){
+            savedImages= await Image.find({})
+            .sort({_id:-1})
+            .skip((parseInt(req.query.page)-1)*50)
+            .limit(50)
         }else{
             savedImages= await Image.find({}).sort({_id:-1}).limit(50)
         }
@@ -268,6 +272,7 @@ router.post('/user/generate-otp', async (req, res) => {
         })
     }
 })
+
 // For changing password with otp
 router.post('/user/reset-password', async (req, res) => {
     try {
@@ -351,18 +356,22 @@ router.post('/user/reset-password', async (req, res) => {
 // })
 router.post( '/user/profile-img',userAuth,async(req,res)=>{
     try{
+        console.log(req.files)
+        console.log("Incoming request to server")
         profileImgUpload( req, res, ( error ) => {
             if(error){
                 return res.json({
                     error: error
                 })
             }
+            console.log('Before checkgin file')
             if(req.file === undefined){
                 return res.json({
                     error:'No File Selected.',
                     status:'failed'
                 })
             }
+            console.log('Before  upload')
             const imageName = req.file.key;
             const imageLocation = req.file.location;// Save the file name into database into profile model
             console.log(req.user)
@@ -400,5 +409,92 @@ router.post( '/user/profile-img',userAuth,async(req,res)=>{
 })
 
 
+/* User Link generation */
 
+router.post('/user/generate-password-reset-link', async (req, res) => {
+    try {
+        if(!req.body.email){
+            return res.json({
+                status: 'failed',
+                error: 'Please Enter a Valid Email!'
+            })
+        }
+        const user = await User.findOne({email:req.body.email})
+        if (!user) {
+            return res.json({
+                status: 'failed',
+                error: 'Email is Not Registered!'
+            })
+        }
+        const token = await user.getAuthToken()
+        await user.save()
+        await sendMail({
+            text:'Please do not share this code with anyone.',
+            to:user.email,
+            subject:'Password Reset',
+            html:`
+                <p>Please do not share this code with anyone!</p>
+                <a 
+                    src='https://rootrsk-cloudvision.vercel.app/password-reset?pass_token=${token}'
+                    >Change Password</a>
+                <img 
+                    src='https://i.ibb.co/2Wnc5cG/Group-8.png' 
+                    alt='cloud vision logo' 
+                >
+            `
+        })
+        res.json({
+            status: 'success',
+            message:`Link has been send to ${user.email}`
+        })
+    } catch (e) {
+        res.json({
+            status: 'failed',
+            error: e.message
+        })
+    }
+})
+router.post('/user/generate-verify-link', async (req, res) => {
+    try {
+        if(!req.body.email){
+            return res.json({
+                status: 'failed',
+                error: 'Please Enter a Valid Email!'
+            })
+        }
+        const user = await User.findOne({email:req.body.email})
+        if (!user) {
+            return res.json({
+                status: 'failed',
+                error: 'Email is Not Registered!'
+            })
+        }
+        const token = await user.getAuthToken()
+        await user.save()
+        await sendMail({
+            text:'Please do not share this code with anyone.',
+            to:user.email,
+            subject:'Password Reset',
+            html:`
+                <p>Please do not share this code with anyone!</p>
+                <a 
+                    src='https://rootrsk-cloudvision.vercel.app/verify?verify_token=${token}'
+                    >Verify Now</a>
+                <img 
+                    src='https://i.ibb.co/2Wnc5cG/Group-8.png' 
+                    alt='cloud vision logo' 
+                >
+            `
+        })
+        res.json({
+            status: 'success',
+            message:`Link has been send to ${user.email}`
+        })
+    } catch (e) {
+        res.json({
+            status: 'failed',
+            error: e.message
+        })
+    }
+})
 module.exports = router
