@@ -54,7 +54,7 @@ function checkFileType( file, cb ){
 
 router.get('/',(req,res)=>{
     res.json({
-        status: 'Welcome to security rest api',
+        status: 'Welcome to cloudvision rest api',
     })
 })
 // For getting clicked images form server
@@ -191,6 +191,21 @@ router.get('/users',async(req,res)=>{
 })
 // For getting user details
 router.get('/user/me',userAuth,async(req,res)=>{
+    try {
+        const user= req.user
+        const token = user.token
+        res.json({
+            token,
+            user
+        })
+    } catch (error) {
+        res.json({
+            status : 'failed',
+            error : error.message
+        })
+    }
+})
+router.post('/user/me',userAuth,async(req,res)=>{
     try {
         const user= req.user
         const token = user.token
